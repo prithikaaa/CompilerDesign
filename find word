@@ -1,0 +1,35 @@
+int main(){
+  string filename, wordToFind, wordToReplace;
+  cout << "Enter the filename: ";
+  cin >> filename;
+  cout << "Enter the word to find: ";
+  cin >> wordToFind;
+  cout << "Enter the word to replace with: ";
+  cin >> wordToReplace;
+  ifstream file(filename);
+  stringstream buffer;
+  buffer << file.rdbuf();
+  string content = buffer.str();
+  file.close();
+  int count=0;
+  map<string,int> mp;
+  istringstream ss(content); 
+  string word;
+  while (ss >> word) {  
+        mp[word]++;
+    }
+  size_t pos = 0;
+  while ((pos = content.find(wordToFind, pos)) != string::npos) {
+        content.replace(pos, wordToFind.length(), wordToReplace);
+        pos += wordToReplace.length(); 
+    }
+  ofstream outFile(filename);
+  outFile << content;
+  outFile.close();
+
+  
+  
+ cout << wordToFind << ": " << mp[wordToFind] <<endl;
+    
+
+}
