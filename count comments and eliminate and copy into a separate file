@@ -1,0 +1,90 @@
+#include <bits/stdc++.h>
+using namespace std ;
+
+void processSourceFile(const string& inputFilePath, const string& outputFilePath, int& commentCount) {
+    ifstream inputFile(inputFilePath);
+    ofstream outputFile(outputFilePath);
+    
+    if (!inputFile.is_open()) {
+        cout << "Error: Could not open input file.\n";
+        return;
+    }
+    
+    if (!outputFile.is_open()) {
+        cout << "Error: Could not open output file.\n";
+        return;
+    }
+
+    string line;
+    bool inMultiLineComment = false;
+    commentCount = 0;
+
+    while (getline(inputFile, line)) {
+        string cleanLine;
+        bool isInComment = false;
+        size_t pos = 0;
+        size_t length = line.length();
+
+        if (inMultiLineComment) {
+            size_t endPos = line.find("*//*");     ////CORRECTION NEEDED
+            if (endPos != string::npos) {
+                inMultiLineComment = false;
+                commentCount++;
+                pos = endPos + 2;
+            } else {
+                commentCount++;
+                continue; 
+            }
+        }
+
+        while (pos < length) {
+            if (line[pos] == '/' && pos + 1 < length && line[pos + 1] == '/') {
+                commentCount++;
+                break;
+            } else if (line[pos] == '/' && pos + 1 < length && line[pos + 1] == '*') {
+                isInComment = true;
+                commentCount++;
+                pos += 2;
+                continue;
+            } else if (line[pos] == '*' && pos + 1 < length && line[pos + 1] == '/') {
+                if (isInComment) {
+                    isInComment = false;
+                    commentCount++;
+                    pos += 2;
+                    continue;
+                }
+            }
+
+            if (!isInComment) {
+                cleanLine += line[pos];
+            }
+            pos++;
+        }
+
+        if (isInComment) {
+            commentCount++;
+        } else if (!cleanLine.empty()) {
+            outputFile << cleanLine << endl;
+        }
+    }
+
+    inputFile.close();
+    outputFile.close();
+}
+
+int main() {
+    string inputFilePath;
+    string outputFilePath;
+    int commentCount = 0;
+
+    cout << "Enter the input file path: ";
+    getline(cin, inputFilePath);
+    cout << "Enter the output file path: ";
+    getline(cin, outputFilePath);
+
+    processSourceFile(inputFilePath, outputFilePath, commentCount);
+
+    cout << "Number of comment lines removed: " << commentCount << endl;
+
+    return 0;
+}
